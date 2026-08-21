@@ -1,0 +1,15 @@
+:root {
+  --color-primary: #3b82f6;
+  --color-secondary: #10b981;
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+  --color-error: #ef4444;
+  --color-success: #22c55e;
+  --color-ink: #1e293b;
+  --color-muted: #64748b;
+  --color-line: #e2e8f0;
+  --radius-xl: 16px;
+  --radius-pill: 9999px;
+  --shadow-soft: 0 8px 28px rgba(30,41,59,0.08);
+  --font-sans: Inter, system-ui, sans-serif;
+}
