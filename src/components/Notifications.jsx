@@ -1,47 +1,14 @@
 import { useState } from 'react'
+import { useFinance } from '../context/FinanceContext.jsx'
 
 function Notifications() {
-
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      icon: '⚠️',
-      title: 'Shopping budget exceeded',
-      message: 'You are ₹1,800 above your shopping budget.',
-      time: '10 min ago',
-      unread: true,
-    },
-    {
-      id: 2,
-      icon: '🎯',
-      title: 'Home goal update',
-      message: 'Your goal is now 62% funded.',
-      time: '2 hours ago',
-      unread: true,
-    },
-    {
-      id: 3,
-      icon: '📈',
-      title: 'Portfolio update',
-      message: 'Your portfolio gained 1.8% this month.',
-      time: 'Yesterday',
-      unread: false,
-    },
-  ])
+  const { notifications, markNotificationRead, markAllNotificationsRead } = useFinance()
+  const [expanded, setExpanded] = useState(null)
 
   const unreadCount =
     notifications.filter(
-      (notification) => notification.unread
+      (notification) => !notification.read
     ).length
-
-  const markAllRead = () => {
-    setNotifications((current) =>
-      current.map((notification) => ({
-        ...notification,
-        unread: false,
-      }))
-    )
-  }
 
   return (
     <section className="section" id="notifications">
@@ -62,7 +29,7 @@ function Notifications() {
 
           <button
             className="outline-button"
-            onClick={markAllRead}
+            onClick={markAllNotificationsRead}
           >
             Mark all read
           </button>
@@ -78,7 +45,7 @@ function Notifications() {
 
           <div
             className={
-              notification.unread
+              !notification.read
                 ? 'notification unread'
                 : 'notification'
             }
@@ -100,12 +67,18 @@ function Notifications() {
               </p>
 
               <small>
-                {notification.time}
+                {notification.time || 'From your local finance data'}
               </small>
+
+              {!notification.read && <button className="text-button" type="button" onClick={() => markNotificationRead(notification.id)}>Mark read</button>}
+              <button className="text-button" type="button" onClick={() => setExpanded(expanded === notification.id ? null : notification.id)} aria-expanded={expanded === notification.id}>
+                {expanded === notification.id ? 'Hide details' : 'Details'}
+              </button>
+              {expanded === notification.id && <small className="muted">Review this alert in your budget and goals pages.</small>}
 
             </div>
 
-            {notification.unread && (
+            {!notification.read && (
               <span className="unread-dot" />
             )}
 

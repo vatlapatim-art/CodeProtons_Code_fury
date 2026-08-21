@@ -1,8 +1,11 @@
 import { useState } from 'react'
+import { hasApiConfig } from '../config/env.js'
+import { useFinance } from '../context/FinanceContext.jsx'
 
 function AskArthiq() {
   const [question, setQuestion] = useState('')
   const [answer, setAnswer] = useState('')
+  const { financial, goals, derived } = useFinance()
 
   const getAnswer = () => {
 
@@ -10,7 +13,7 @@ function AskArthiq() {
 
     if (text.includes('spend') || text.includes('expense')) {
       setAnswer(
-        "Your lifestyle spending is currently around 29% of your monthly expenses. Reducing discretionary spending by ₹2,000 could increase your monthly savings."
+        `Your current monthly spending is ${financial.spending.toLocaleString('en-IN')}. Your savings rate is ${derived.monthlySavingsRate}%. Reducing discretionary spending could increase your monthly buffer.`
       )
       return
     }
@@ -24,14 +27,14 @@ function AskArthiq() {
 
     if (text.includes('save') || text.includes('saving')) {
       setAnswer(
-        "You're currently saving approximately ₹22,320 per month. Increasing that amount gradually could accelerate your financial goals."
+        `You're currently saving approximately ₹${financial.savings.toLocaleString('en-IN')} per month. Increasing that amount gradually could accelerate your financial goals.`
       )
       return
     }
 
     if (text.includes('goal') || text.includes('home')) {
       setAnswer(
-        "Your home goal is approximately 62% funded. Maintaining your current savings rate should keep you moving toward the target."
+        `You have ${goals.length} active goals. Your average goal progress is ${Math.round(goals.reduce((sum, goal) => sum + (goal.current / goal.target) * 100, 0) / Math.max(goals.length, 1))}%.`
       )
       return
     }
@@ -75,6 +78,10 @@ function AskArthiq() {
               Ask about your spending, savings,
               investments or goals.
             </p>
+
+            <small className="muted">
+              {hasApiConfig ? 'API-ready assistant' : 'Offline assistant using your saved data'}
+            </small>
           </div>
 
         </div>

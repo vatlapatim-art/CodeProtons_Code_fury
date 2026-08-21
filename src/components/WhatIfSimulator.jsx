@@ -10,17 +10,12 @@ function WhatIfSimulator() {
     const months = years * 12
     const monthlyRate = rate / 100 / 12
 
-    let futureValue = 0
-
-    if (monthlyRate === 0) {
-      futureValue = monthly * months
-    } else {
-      futureValue =
-        monthly *
+    const futureValue = monthlyRate === 0
+      ? monthly * months
+      : monthly *
         (((1 + monthlyRate) ** months - 1) /
           monthlyRate) *
         (1 + monthlyRate)
-    }
 
     const invested = monthly * months
     const growth = futureValue - invested
@@ -172,6 +167,10 @@ function WhatIfSimulator() {
             </div>
 
           </div>
+
+          <button className="text-button" type="button" onClick={() => { setMonthly(5000); setYears(10); setRate(10) }}>
+            Reset simulator
+          </button>
 
         </div>
 

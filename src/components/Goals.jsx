@@ -13,7 +13,7 @@ function Goals({ goals, onAddMoney }) {
           <h2>Goals in motion</h2>
         </div>
 
-        <button className="icon-button">
+          <button className="icon-button" type="button" aria-label="Create a goal">
           ＋
         </button>
 
@@ -21,15 +21,15 @@ function Goals({ goals, onAddMoney }) {
 
       {goals.map((goal) => {
 
-        const percentage = Math.min(
+        const percentage = goal.target > 0 ? Math.min(
           Math.round((goal.current / goal.target) * 100),
           100
-        )
+        ) : 0
 
         return (
           <div
             className="goal-item"
-            key={goal.name}
+            key={goal.id || goal.name}
           >
 
             <div className="goal-icon">
@@ -53,7 +53,7 @@ function Goals({ goals, onAddMoney }) {
 
               </div>
 
-              <div className="progress-track">
+              <div className="progress-track" aria-label={`${percentage}% funded`}>
 
                 <span
                   style={{
@@ -81,12 +81,13 @@ function Goals({ goals, onAddMoney }) {
         )
       })}
 
-      <button
-        className="text-button"
-        onClick={onAddMoney}
-      >
-        Add ₹10,000 to home goal →
-      </button>
+      <div className="goal-actions">
+        {goals.map((goal) => (
+          <button className="text-button" type="button" key={`add-${goal.id || goal.name}`} onClick={() => onAddMoney(goal.id)}>
+            Add ₹10,000 to {goal.name} →
+          </button>
+        ))}
+      </div>
 
     </article>
   )

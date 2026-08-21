@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import { Link, Route, Routes } from 'react-router-dom'
 import './App.css'
+import { useFinance } from './context/FinanceContext.jsx'
 
 import FinancialHealth from './components/FinancialHealth'
 import Investments from './components/Investments'
@@ -18,35 +20,28 @@ import AskArthiq from './components/AskArthiq'
 import Notifications from './components/Notifications'
 import Achievements from './components/Achievements'
 import Onboarding from './components/Onboarding'
-
 import {
-  financialData,
-  investments,
-  goals as initialGoals,
-  transactions,
-} from './data/demoData'
+  BudgetPage,
+  GoalsPage,
+  InvestmentsPage,
+  PlanningPage,
+  ProfilePage,
+  TransactionsPage,
+} from './pages/PrototypePages.jsx'
 
-function App() {
-  const [goals, setGoals] = useState(initialGoals)
+function Dashboard() {
+  const {
+    goals,
+    investments,
+    transactions,
+    budget,
+    financial,
+    derived,
+    addMoneyToGoal,
+    profile,
+  } = useFinance()
   const [showProfile, setShowProfile] = useState(false)
-
-  const addMoneyToHomeGoal = () => {
-    setGoals((currentGoals) =>
-      currentGoals.map((goal) => {
-        if (goal.name === 'New Home') {
-          return {
-            ...goal,
-            current: Math.min(
-              goal.current + 10000,
-              goal.target
-            ),
-          }
-        }
-
-        return goal
-      })
-    )
-  }
+  const [showMenu, setShowMenu] = useState(false)
 
   return (
     <div className="app-shell">
@@ -64,27 +59,31 @@ function App() {
           Arthiq
         </a>
 
-        <nav className="desktop-nav">
+        <button className="mobile-menu-button" type="button" aria-label="Toggle navigation" aria-expanded={showMenu} onClick={() => setShowMenu(!showMenu)}>
+          {showMenu ? '×' : '☰'}
+        </button>
+
+        <nav className={showMenu ? 'desktop-nav mobile-nav-open' : 'desktop-nav'}>
 
           <a href="#overview">
             Overview
           </a>
 
-          <a href="#investments">
+          <Link to="/investments" onClick={() => setShowMenu(false)}>
             Investments
-          </a>
+          </Link>
 
-          <a href="#goals">
+          <Link to="/goals" onClick={() => setShowMenu(false)}>
             Goals
-          </a>
+          </Link>
 
-          <a href="#budget">
+          <Link to="/budget" onClick={() => setShowMenu(false)}>
             Budget
-          </a>
+          </Link>
 
-          <a href="#what-if">
+          <Link to="/planning" onClick={() => setShowMenu(false)}>
             Simulator
-          </a>
+          </Link>
 
           <a href="#ask-arthiq">
             Ask Arthiq
@@ -227,7 +226,7 @@ function App() {
           <div className="dashboard-grid">
 
             <FinancialHealth
-              health={financialData.health}
+              health={derived.health}
             />
 
 
@@ -260,7 +259,7 @@ function App() {
                 <div>
 
                   <h3>
-                    Balanced Grower
+                    {profile.personality}
                   </h3>
 
                   <p>
@@ -320,7 +319,7 @@ function App() {
 
           <Goals
             goals={goals}
-            onAddMoney={addMoneyToHomeGoal}
+            onAddMoney={(goalId) => addMoneyToGoal(goalId, 10000)}
           />
 
           <Spending />
@@ -341,7 +340,7 @@ function App() {
             MONEY MANAGEMENT
         ========================= */}
 
-        <Budget />
+        <Budget budget={budget} />
 
         <GoalCalculator />
 
@@ -350,9 +349,9 @@ function App() {
             FINANCIAL SAFETY
         ========================= */}
 
-        <EmergencyFund />
+        <EmergencyFund fund={financial.emergencyFund} />
 
-        <DebtTracker />
+        <DebtTracker debts={financial.debts.map((debt) => ({ ...debt, original: debt.outstanding * 1.4, interest: `${debt.rate}%` }))} />
 
 
         {/* =========================
@@ -686,6 +685,21 @@ function App() {
       </footer>
 
     </div>
+  )
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Dashboard />} />
+      <Route path="/goals" element={<GoalsPage />} />
+      <Route path="/investments" element={<InvestmentsPage />} />
+      <Route path="/transactions" element={<TransactionsPage />} />
+      <Route path="/budget" element={<BudgetPage />} />
+      <Route path="/planning" element={<PlanningPage />} />
+      <Route path="/profile" element={<ProfilePage />} />
+      <Route path="*" element={<Dashboard />} />
+    </Routes>
   )
 }
 

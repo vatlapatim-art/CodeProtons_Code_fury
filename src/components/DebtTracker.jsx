@@ -1,5 +1,5 @@
-function DebtTracker() {
-  const loans = [
+function DebtTracker({ debts }) {
+  const loans = debts || [
     {
       name: 'Education Loan',
       outstanding: 420000,

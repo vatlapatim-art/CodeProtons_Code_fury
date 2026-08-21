@@ -1,7 +1,7 @@
-function EmergencyFund() {
-  const saved = 120000
-  const target = 300000
-  const monthlyExpenses = 42680
+function EmergencyFund({ fund }) {
+  const saved = fund?.saved ?? 120000
+  const target = fund?.target ?? 300000
+  const monthlyExpenses = fund?.monthlyExpenses ?? 42680
 
   const percentage = Math.round((saved / target) * 100)
   const monthsCovered = (saved / monthlyExpenses).toFixed(1)

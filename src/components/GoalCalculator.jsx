@@ -4,17 +4,22 @@ function GoalCalculator() {
   const [target, setTarget] = useState(3000000)
   const [current, setCurrent] = useState(1860000)
   const [months, setMonths] = useState(24)
+  const [error, setError] = useState('')
 
-  const remaining = Math.max(target - current, 0)
+  const safeTarget = Number(target)
+  const safeCurrent = Number(current)
+  const safeMonths = Number(months)
+  const isValid = safeTarget > 0 && safeCurrent >= 0 && safeMonths > 0 && safeCurrent <= safeTarget
+  const remaining = isValid ? Math.max(safeTarget - safeCurrent, 0) : 0
 
   const monthlySaving = useMemo(() => {
-    return months > 0
-      ? Math.ceil(remaining / months)
+    return safeMonths > 0
+      ? Math.ceil(remaining / safeMonths)
       : remaining
-  }, [remaining, months])
+  }, [remaining, safeMonths])
 
   const percentage = Math.min(
-    Math.round((current / target) * 100),
+    isValid ? Math.round((safeCurrent / safeTarget) * 100) : 0,
     100
   )
 
@@ -39,9 +44,8 @@ function GoalCalculator() {
               <input
                 type="number"
                 value={target}
-                onChange={(event) =>
-                  setTarget(Number(event.target.value))
-                }
+                onChange={(event) => setTarget(Number(event.target.value))}
+                onBlur={() => setError(isValid ? '' : 'Enter a positive target, valid savings, and a positive timeline.')}
               />
             </label>
 
@@ -50,9 +54,7 @@ function GoalCalculator() {
               <input
                 type="number"
                 value={current}
-                onChange={(event) =>
-                  setCurrent(Number(event.target.value))
-                }
+                onChange={(event) => setCurrent(Number(event.target.value))}
               />
             </label>
 
@@ -62,9 +64,7 @@ function GoalCalculator() {
                 type="number"
                 min="1"
                 value={months}
-                onChange={(event) =>
-                  setMonths(Number(event.target.value))
-                }
+                onChange={(event) => setMonths(Number(event.target.value))}
               />
               <small>months</small>
             </label>
@@ -73,16 +73,16 @@ function GoalCalculator() {
 
           <div className="calculator-result">
 
-            <span className="muted">
-              You need to save
-            </span>
+            {error && <p className="form-error" role="alert">{error}</p>}
+
+            <span className="muted">You need to save</span>
 
             <strong>
               ₹{monthlySaving.toLocaleString('en-IN')}
             </strong>
 
             <p>
-              every month to reach your goal in {months} months.
+              every month to reach your goal in {safeMonths} months.
             </p>
 
             <div className="progress-track">
@@ -92,6 +92,10 @@ function GoalCalculator() {
             <small>
               {percentage}% already completed
             </small>
+
+            <button className="text-button" type="button" onClick={() => { setTarget(3000000); setCurrent(1860000); setMonths(24); setError('') }}>
+              Reset calculator
+            </button>
 
           </div>
 

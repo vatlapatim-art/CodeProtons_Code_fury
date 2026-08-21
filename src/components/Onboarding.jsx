@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useFinance } from '../context/FinanceContext.jsx'
 
 const questions = [
   {
@@ -97,6 +98,17 @@ function Onboarding({ onClose }) {
 
   const [current, setCurrent] = useState(0)
   const [answers, setAnswers] = useState([])
+  const closeButtonRef = useRef(null)
+  const { saveOnboarding } = useFinance()
+
+  useEffect(() => {
+    closeButtonRef.current?.focus()
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [onClose])
 
   const question = questions[current]
 
@@ -122,6 +134,18 @@ function Onboarding({ onClose }) {
     }
   }
 
+  const finishAssessment = () => {
+    const riskAnswer = answers[2] || ''
+    const savingsAnswer = answers[4] || ''
+    const personality = riskAnswer.includes('high') || savingsAnswer.includes('Less')
+      ? 'Cautious Builder'
+      : riskAnswer.includes('moderate')
+        ? 'Balanced Grower'
+        : 'Focused Planner'
+    saveOnboarding(answers, personality)
+    onClose()
+  }
+
   const progress =
     ((current + 1) / questions.length) * 100
 
@@ -132,6 +156,9 @@ function Onboarding({ onClose }) {
 
         <button
           className="modal-close"
+          ref={closeButtonRef}
+          type="button"
+          aria-label="Close assessment"
           onClick={onClose}
         >
           ×
@@ -208,7 +235,7 @@ function Onboarding({ onClose }) {
 
             <button
               className="primary-button"
-              onClick={onClose}
+              onClick={finishAssessment}
             >
               Finish assessment →
             </button>

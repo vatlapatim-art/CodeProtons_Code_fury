@@ -2863,3 +2863,149 @@ input:focus-visible {
     grid-template-columns: 1fr;
   }
 }
+
+.mobile-menu-button {
+  display: none;
+  color: var(--ink);
+  background: transparent;
+  font-size: 22px;
+}
+
+.route-shell {
+  min-height: 100vh;
+}
+
+.route-content {
+  padding: 48px 0 80px;
+}
+
+.route-title {
+  margin-bottom: 28px;
+  font-size: clamp(38px, 6vw, 64px);
+}
+
+.prototype-form,
+.prototype-list {
+  margin-top: 20px;
+}
+
+.prototype-form h2,
+.prototype-list h2 {
+  margin-bottom: 20px;
+}
+
+.prototype-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.prototype-form label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.prototype-form input {
+  min-width: 0;
+  padding: 12px 13px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fbfcfe;
+  color: var(--ink);
+}
+
+.prototype-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.prototype-row:last-child {
+  border-bottom: 0;
+}
+
+.prototype-row small {
+  color: var(--muted-light);
+}
+
+.form-error {
+  color: var(--red);
+  font-size: 11px;
+}
+
+.danger-button {
+  color: var(--red);
+}
+
+.error-state {
+  max-width: 560px;
+  margin: 15vh auto;
+  padding: 32px;
+  text-align: center;
+}
+
+.error-state h1 {
+  font-size: 42px;
+}
+
+.error-state p:not(.eyebrow) {
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+.goal-actions {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+@media (max-width: 650px) {
+  .mobile-menu-button {
+    display: block;
+    order: 2;
+  }
+
+  .topbar .invest-button {
+    order: 3;
+    padding: 9px 10px;
+    font-size: 11px;
+  }
+
+  .desktop-nav {
+    display: none;
+    position: absolute;
+    top: 72px;
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 14px 16px 18px;
+    flex-direction: column;
+    gap: 4px;
+    background: rgba(246, 248, 251, .98);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .desktop-nav.mobile-nav-open {
+    display: flex;
+  }
+
+  .desktop-nav a {
+    padding: 10px 0;
+  }
+
+  .prototype-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .prototype-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

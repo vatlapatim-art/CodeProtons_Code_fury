@@ -41,7 +41,7 @@ function Investments({ investments }) {
           return (
             <article
               className="holding-card"
-              key={investment.name}
+              key={investment.id || investment.name}
             >
 
               <div className={`holding-icon ${investment.type}`}>
@@ -113,32 +113,16 @@ function Investments({ investments }) {
 
           <div className="allocation-list">
 
-            <div>
-              <span>
-                <i className="dot blue-dot" />
-                Mutual Funds
-              </span>
+            {investments.map((investment, index) => (
+              <div key={investment.id || investment.name}>
+                <span>
+                  <i className={`dot ${index % 3 === 0 ? 'blue-dot' : index % 3 === 1 ? 'green-dot' : 'yellow-dot'}`} />
+                  {investment.name}
+                </span>
 
-              <strong>53%</strong>
-            </div>
-
-            <div>
-              <span>
-                <i className="dot green-dot" />
-                Stocks
-              </span>
-
-              <strong>27%</strong>
-            </div>
-
-            <div>
-              <span>
-                <i className="dot yellow-dot" />
-                Fixed Deposits
-              </span>
-
-              <strong>20%</strong>
-            </div>
+                <strong>{total > 0 ? Math.round((investment.current / total) * 100) : 0}%</strong>
+              </div>
+            ))}
 
           </div>
 

@@ -1,9 +1,6 @@
-import { useState } from 'react'
-
-function Budget() {
-  const [budget, setBudget] = useState(50000)
-
-  const categories = [
+function Budget({ budget: budgetData }) {
+  const budget = budgetData?.total || 50000
+  const categories = budgetData?.categories || [
     { name: 'Food', spent: 7200, limit: 8000, icon: '🍔' },
     { name: 'Transport', spent: 4200, limit: 6000, icon: '⛽' },
     { name: 'Shopping', spent: 6800, limit: 5000, icon: '🛍️' },
@@ -12,7 +9,7 @@ function Budget() {
   ]
 
   const totalSpent = categories.reduce(
-    (sum, category) => sum + category.spent,
+    (sum, category) => sum + (category.spent ?? category.amount),
     0
   )
 
@@ -68,10 +65,10 @@ function Budget() {
           {categories.map((category) => {
 
             const percentage = Math.round(
-              (category.spent / category.limit) * 100
+              ((category.spent ?? category.amount) / category.limit) * 100
             )
 
-            const overBudget = category.spent > category.limit
+            const overBudget = (category.spent ?? category.amount) > category.limit
 
             return (
               <div className="budget-row" key={category.name}>
@@ -84,7 +81,7 @@ function Budget() {
                   <div>
                     <strong>{category.name}</strong>
                     <small>
-                      ₹{category.spent.toLocaleString('en-IN')}
+                      ₹{(category.spent ?? category.amount).toLocaleString('en-IN')}
                       {' '}of ₹{category.limit.toLocaleString('en-IN')}
                     </small>
                   </div>
