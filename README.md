@@ -1,4 +1,27 @@
-# React + Vite
+# Arthiq
+
+Arthiq is a React and Vite personal finance prototype. It currently runs offline and persists goals, transactions, budgets, notifications, and profile data in browser `localStorage`.
+
+## Development
+
+```bash
+npm install
+npm run dev
+```
+
+Quality checks:
+
+```bash
+npm run lint
+npm run test
+npm run build
+```
+
+## Backend Roadmap
+
+Supabase placeholders are available in `src/data/supabaseClient.js` and `src/data/supabaseService.js`. Supabase is not active yet, so no credentials or network requests are required. Copy `.env.example` to `.env.local` only when beginning backend integration. See [docs/supabase-setup.md](docs/supabase-setup.md) for the planned tables, authentication flow, Row Level Security, and localStorage migration.
+
+## Original Vite Notes
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 

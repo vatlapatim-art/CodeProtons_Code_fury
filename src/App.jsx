@@ -28,6 +28,10 @@ import {
   ProfilePage,
   TransactionsPage,
 } from './pages/PrototypePages.jsx'
+import LandingPage from './pages/LandingPage.jsx'
+import { LoginPage, SignupPage } from './pages/AuthPages.jsx'
+import OnboardingPage from './pages/OnboardingPage.jsx'
+import { AuthenticatedRedirect, NotFoundPage, ProtectedRoute } from './pages/RouteGuards.jsx'
 
 function Dashboard() {
   const {
@@ -39,6 +43,7 @@ function Dashboard() {
     derived,
     addMoneyToGoal,
     profile,
+    user,
   } = useFinance()
   const [showProfile, setShowProfile] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
@@ -52,12 +57,12 @@ function Dashboard() {
 
       <header className="topbar">
 
-        <a className="brand" href="#top">
+        <Link className="brand" to="/dashboard">
           <span className="brand-mark">
             ✦
           </span>
           Arthiq
-        </a>
+        </Link>
 
         <button className="mobile-menu-button" type="button" aria-label="Toggle navigation" aria-expanded={showMenu} onClick={() => setShowMenu(!showMenu)}>
           {showMenu ? '×' : '☰'}
@@ -89,6 +94,10 @@ function Dashboard() {
             Ask Arthiq
           </a>
 
+          <Link to="/profile" onClick={() => setShowMenu(false)}>
+            Profile
+          </Link>
+
         </nav>
 
         <button
@@ -96,7 +105,7 @@ function Dashboard() {
           type="button"
           onClick={() => setShowProfile(true)}
         >
-          Find my profile ↗
+          {user?.name || 'Your profile'} ↗
         </button>
 
       </header>
@@ -689,16 +698,22 @@ function Dashboard() {
 }
 
 function App() {
+  const protectedPage = (element) => <ProtectedRoute>{element}</ProtectedRoute>
+
   return (
     <Routes>
-      <Route path="/" element={<Dashboard />} />
-      <Route path="/goals" element={<GoalsPage />} />
-      <Route path="/investments" element={<InvestmentsPage />} />
-      <Route path="/transactions" element={<TransactionsPage />} />
-      <Route path="/budget" element={<BudgetPage />} />
-      <Route path="/planning" element={<PlanningPage />} />
-      <Route path="/profile" element={<ProfilePage />} />
-      <Route path="*" element={<Dashboard />} />
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={<AuthenticatedRedirect><LoginPage /></AuthenticatedRedirect>} />
+      <Route path="/signup" element={<AuthenticatedRedirect><SignupPage /></AuthenticatedRedirect>} />
+      <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
+      <Route path="/dashboard" element={protectedPage(<Dashboard />)} />
+      <Route path="/goals" element={protectedPage(<GoalsPage />)} />
+      <Route path="/investments" element={protectedPage(<InvestmentsPage />)} />
+      <Route path="/transactions" element={protectedPage(<TransactionsPage />)} />
+      <Route path="/budget" element={protectedPage(<BudgetPage />)} />
+      <Route path="/planning" element={protectedPage(<PlanningPage />)} />
+      <Route path="/profile" element={protectedPage(<ProfilePage />)} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   )
 }

@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { formatCurrency, validateGoal, validateTransaction } from './finance'
+import { hasSupabaseConfig } from '../config/env.js'
+import { supabaseStatus, goals as supabaseGoals } from '../data/supabaseService.js'
 
 describe('finance utilities', () => {
   it('formats Indian currency', () => {
@@ -21,6 +23,16 @@ describe('finance utilities', () => {
       category: 'Choose a category.',
       amount: 'Amount must be a non-zero number.',
       date: 'Enter a valid date.',
+    })
+  })
+
+  it('keeps Supabase disabled without environment variables', async () => {
+    expect(hasSupabaseConfig).toBe(false)
+    expect(supabaseStatus()).toEqual({ configured: false, mode: 'local' })
+    await expect(supabaseGoals.list()).resolves.toEqual({
+      ok: false,
+      configured: false,
+      error: 'Supabase is not configured; localStorage remains active.',
     })
   })
 })

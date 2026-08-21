@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Budget from '../components/Budget'
 import Goals from '../components/Goals'
 import Investments from '../components/Investments'
@@ -9,11 +9,27 @@ import { useFinance } from '../context/FinanceContext.jsx'
 import { validateGoal, validateTransaction } from '../utils/finance'
 
 function PageFrame({ title, children }) {
+  const navigate = useNavigate()
+  const { user, signOut } = useFinance()
+
+  const logout = () => {
+    signOut()
+    navigate('/', { replace: true })
+  }
+
   return (
     <div className="app-shell route-shell">
       <header className="topbar">
-        <Link className="brand" to="/">✦ Arthiq</Link>
-        <Link className="outline-button" to="/">Back to dashboard</Link>
+        <Link className="brand" to="/dashboard">✦ Arthiq</Link>
+        <nav className="route-nav" aria-label="Workspace navigation">
+          <Link to="/dashboard">Overview</Link>
+          <Link to="/goals">Goals</Link>
+          <Link to="/investments">Investments</Link>
+          <Link to="/transactions">Transactions</Link>
+          <Link to="/budget">Budget</Link>
+          <Link to="/planning">Planning</Link>
+        </nav>
+        <div className="route-user"><span>{user?.name}</span><button className="text-button" type="button" onClick={logout}>Sign out</button></div>
       </header>
       <main className="route-content">
         <p className="eyebrow">Arthiq workspace</p>

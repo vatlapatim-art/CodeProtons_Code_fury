@@ -1,8 +1,12 @@
-import { createContext, useContext, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useMemo, useState } from 'react'
 import {
   calculateDerivedFinance,
   loadFinanceState,
+  getLocalSession,
+  loginLocalUser,
   newId,
+  logoutLocalUser,
+  registerLocalUser,
   resetFinanceState as resetStoredFinanceState,
   saveFinanceState,
 } from '../data/financeService'
@@ -10,15 +14,17 @@ import {
 const FinanceContext = createContext(null)
 
 export function FinanceProvider({ children }) {
-  const [state, setState] = useState(loadFinanceState)
+  const [user, setUser] = useState(getLocalSession)
+  const [state, setState] = useState(() => loadFinanceState(getLocalSession()?.id))
+  const [authLoading, setAuthLoading] = useState(false)
 
-  const updateState = (updater) => {
+  const updateState = useCallback((updater) => {
     setState((current) => {
       const next = typeof updater === 'function' ? updater(current) : updater
-      saveFinanceState(next)
+      saveFinanceState(next, user?.id)
       return next
     })
-  }
+  }, [user])
 
   const actions = useMemo(() => ({
     addGoal: (goal) => updateState((current) => ({
@@ -63,16 +69,44 @@ export function FinanceProvider({ children }) {
     })),
     saveOnboarding: (answers, personality) => updateState((current) => ({
       ...current,
-      profile: { ...current.profile, onboardingAnswers: answers, personality },
+      profile: { ...current.profile, onboardingAnswers: answers, personality, onboardingCompleted: true },
     })),
-    resetFinanceState: () => setState(resetStoredFinanceState()),
-  }), [])
+    resetFinanceState: () => setState(resetStoredFinanceState(user?.id)),
+    signUp: (credentials) => {
+      setAuthLoading(true)
+      const result = registerLocalUser(credentials)
+      if (result.user) {
+        setUser(result.user)
+        setState(loadFinanceState(result.user.id))
+      }
+      setAuthLoading(false)
+      return result
+    },
+    signIn: (credentials) => {
+      setAuthLoading(true)
+      const result = loginLocalUser(credentials)
+      if (result.user) {
+        setUser(result.user)
+        setState(loadFinanceState(result.user.id))
+      }
+      setAuthLoading(false)
+      return result
+    },
+    signOut: () => {
+      logoutLocalUser()
+      setUser(null)
+      setState(loadFinanceState())
+    },
+  }), [updateState, user])
 
   const value = useMemo(() => ({
     ...state,
+    user,
+    authLoading,
+    isAuthenticated: Boolean(user),
     derived: calculateDerivedFinance(state),
     ...actions,
-  }), [state, actions])
+  }), [state, actions, authLoading, user])
 
   return <FinanceContext.Provider value={value}>{children}</FinanceContext.Provider>
 }

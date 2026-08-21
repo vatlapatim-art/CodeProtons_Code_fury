@@ -7,6 +7,8 @@ import {
 } from './demoData'
 
 const STORAGE_KEY = 'arthiq-finance-state-v1'
+const USERS_KEY = 'arthiq-local-users-v1'
+const SESSION_KEY = 'arthiq-local-session-v1'
 
 const createId = (prefix) =>
   `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
@@ -14,8 +16,10 @@ const createId = (prefix) =>
 const seedState = () => ({
   profile: {
     name: 'Arthiq member',
+    email: '',
     onboardingAnswers: [],
     personality: 'Balanced Grower',
+    onboardingCompleted: false,
   },
   financial: {
     ...initialFinancialData,
@@ -55,18 +59,20 @@ const seedState = () => ({
   ],
 })
 
-export const loadFinanceState = () => {
+const userStorageKey = (userId) => `${STORAGE_KEY}-${userId || 'guest'}`
+
+export const loadFinanceState = (userId) => {
   try {
-    const stored = window.localStorage.getItem(STORAGE_KEY)
+    const stored = window.localStorage.getItem(userStorageKey(userId))
     return stored ? JSON.parse(stored) : seedState()
   } catch {
     return seedState()
   }
 }
 
-export const saveFinanceState = (state) => {
+export const saveFinanceState = (state, userId) => {
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+    window.localStorage.setItem(userStorageKey(userId), JSON.stringify(state))
   } catch {
     return false
   }
@@ -74,11 +80,60 @@ export const saveFinanceState = (state) => {
   return true
 }
 
-export const resetFinanceState = () => {
+export const resetFinanceState = (userId) => {
   const state = seedState()
-  saveFinanceState(state)
+  saveFinanceState(state, userId)
   return state
 }
+
+const readUsers = () => {
+  try {
+    return JSON.parse(window.localStorage.getItem(USERS_KEY) || '[]')
+  } catch {
+    return []
+  }
+}
+
+const writeUsers = (users) => {
+  window.localStorage.setItem(USERS_KEY, JSON.stringify(users))
+}
+
+export const getLocalSession = () => {
+  try {
+    return JSON.parse(window.localStorage.getItem(SESSION_KEY) || 'null')
+  } catch {
+    return null
+  }
+}
+
+export const registerLocalUser = ({ name, email, password }) => {
+  const normalizedEmail = email.trim().toLowerCase()
+  const users = readUsers()
+  if (users.some((user) => user.email === normalizedEmail)) {
+    return { error: 'An account with this email already exists.' }
+  }
+
+  const user = { id: createId('user'), name: name.trim(), email: normalizedEmail, password }
+  writeUsers([...users, user])
+  const sessionUser = { id: user.id, name: user.name, email: user.email }
+  window.localStorage.setItem(SESSION_KEY, JSON.stringify(sessionUser))
+  const state = seedState()
+  state.profile.name = user.name
+  state.profile.email = user.email
+  saveFinanceState(state, user.id)
+  return { user: sessionUser }
+}
+
+export const loginLocalUser = ({ email, password }) => {
+  const normalizedEmail = email.trim().toLowerCase()
+  const user = readUsers().find((item) => item.email === normalizedEmail && item.password === password)
+  if (!user) return { error: 'Email or password is incorrect.' }
+  const sessionUser = { id: user.id, name: user.name, email: user.email }
+  window.localStorage.setItem(SESSION_KEY, JSON.stringify(sessionUser))
+  return { user: sessionUser }
+}
+
+export const logoutLocalUser = () => window.localStorage.removeItem(SESSION_KEY)
 
 export const newId = createId
 
